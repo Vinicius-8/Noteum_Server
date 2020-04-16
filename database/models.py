@@ -9,7 +9,14 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     photo_url = Column(String)
-    items = relationship('Item', back_populates='owner')
+
+
+class UserList(Base):
+    __tablename__ = 'user_lists'
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship('User', backref='owner')
 
 
 class Item(Base):
@@ -18,5 +25,6 @@ class Item(Base):
     title = Column(String, index=True)
     description = Column(String, index=True)
     img_url = Column(String)
-    owner_id = Column(Integer, ForeignKey('users.id'))
-    owner = relationship('User', back_populates='items')
+    owner_list_id = Column(Integer, ForeignKey('user_lists.id'))
+    owner = relationship('UserList', backref='items')
+

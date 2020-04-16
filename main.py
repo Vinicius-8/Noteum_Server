@@ -3,12 +3,11 @@ from typing import List
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
 
-from database.sql_app import crud, models, schemas
-from database.sql_app.database import SessionLocal, engine
+from database import crud
+from database import schemas, models
+from database.database import SessionLocal, engine
 
 from pydantic import BaseModel
-import controllers.authentication_controller as auth
-
 
 """
 Aqui fica a responsabilidade de definir rota e validar as requisições, as demais conecões com o banco e crud fica em 
@@ -55,12 +54,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.get('/users/', response_model=List[schemas.User], status_code=200)
-def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    users = crud.get_users(db, skip=skip, limit=limit)
-    return users
-
-
+# GET | read the user by id
 @app.get('/users/{user_id}', response_model=schemas.User, status_code=200)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
@@ -69,6 +63,38 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
+# GET | get all items without user id
+@app.get('/items/', response_model=List[schemas.Item], status_code=200)
+def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    items = crud.get_items(db, skip=skip, limit=limit)
+    return items
+
+# POST | user list creator route
+@app.post('/users/{user_id}/lists/', response_model=schemas.UserList, status_code=200)
+def create_list_for_user(user_id: int, user_list: schemas.UserListCreate, db: Session = Depends(get_db)):
+    return crud.create_user_list(db, user_list, user_id)
+
+
+# GET | user list reader
+@app.get('/users/{user_id}/lists/', response_model=List[schemas.UserList], status_code=200)
+def read_lists_from_user(user_id: int, skip: int = 0, limit: int = 30, db: Session = Depends(get_db)):
+    lists = crud.get_lists_from_user(db, user_id, skip, limit)
+    return lists
+
+@app.post('')
+def create_item_for_list():
+    pass
+
+@app.get('/lists/items/{}')
+def read_items_from_list():
+    pass
+
+
+
+#
+# codigo antigo
+
+# POST | create items for user, don't match with db
 @app.post('/users/{user_id}/items/', response_model=schemas.Item, status_code=200)
 def create_item_for_user(
     user_id: int, item: schemas.ItemCreate, db: Session = Depends(get_db)
@@ -76,13 +102,13 @@ def create_item_for_user(
     return crud.create_user_item(db=db, item=item, user_id=user_id)
 
 
-@app.get('/items/', response_model=List[schemas.Item], status_code=200)
-def read_items(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    items = crud.get_items(db, skip=skip, limit=limit)
-    return items
+# GET | get all users, don't need yet --
+@app.get('/users/', response_model=List[schemas.User], status_code=200)
+def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    users = crud.get_users(db, skip=skip, limit=limit)
+    return users
 
 
-# codigo antigo
 @app.post("/login", status_code=201)
 async def login_user(user: User):
     """

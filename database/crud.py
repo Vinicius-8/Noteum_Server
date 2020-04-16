@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from database import schemas, models
 
 
 def get_user(db: Session, user_id: int):
@@ -32,3 +32,16 @@ def create_user_item(db: Session, item: schemas.ItemCreate, user_id):
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def create_user_list(db: Session, user_list: schemas.UserListCreate, user_id):
+    db_list = models.UserList(title=user_list.title, owner_id=user_id)
+    db.add(db_list)
+    db.commit()
+    db.refresh(db_list)
+    return db_list
+
+
+def get_lists_from_user(db: Session, user_id: int, skip: int = 0, limit: int = 30):
+    # return db.query(models.UserList).filter(models.UserList.owner_id == user_id).offset
+    return db.query(models.UserList).filter(models.UserList.owner_id == user_id).offset(skip).limit(limit).all()
