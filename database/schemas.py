@@ -49,7 +49,7 @@ class UserCreate(UserBase):
 
 class User(UserBase):
     id: int
-    listas: List[UserList] = []
+    lists: List[UserList] = []
 
     class Config:
         orm_mode = True

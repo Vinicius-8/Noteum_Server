@@ -9,6 +9,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     photo_url = Column(String)
+    lists = relationship('UserList', back_populates='owner')
 
 
 class UserList(Base):
