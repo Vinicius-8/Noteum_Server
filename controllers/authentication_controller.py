@@ -10,9 +10,7 @@ def auth_token(token) -> dict:
             print('O login não foi autenticado pelo servidor')
             raise ValueError('Wrong issuer')
         # print('idinfo: {}'.format(idinfo))
-        userid = idinfo['sub']
-        return {'auth': True, 'userid': userid}
+        return {'auth': idinfo['email_verified'], 'userid': idinfo['sub'], 'email': idinfo['email']}
     except ValueError:
         print('Token Inválido')
-        pass
     return {'auth': False}

@@ -6,7 +6,7 @@ def get_user(db: Session, user_id: int):  # USER
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def get_user_by_email(db: Session, email: str):  # USER
+def get_user_by_email(db: Session, email: str) -> models.User:  # USER
     return db.query(models.User).filter(models.User.email == email).first()
 
 

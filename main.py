@@ -42,12 +42,17 @@ def get_db():
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     token_validated = auth.auth_token(user.token)
     if not token_validated['auth']:  # token not valid
-        return HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=401, detail="401 Unauthorized")
+    if not token_validated['email'] == user.email:
+        raise HTTPException(status_code=401, detail="401 Unauthorized")
     db_user = crud.get_user_by_email(db, email=user.email)
-    if db_user:  # email already created
-        print('o usuario foi autorizado -----')
-        raise HTTPException(status_code=status.HTTP_202_ACCEPTED, detail='ACCEPTED')
-    return crud.create_user(db=db, user=user)  # creation
+    if db_user:
+        # user already created gonna be returned
+        return db_user
+    user = crud.create_user(db=db, user=user)
+    usr_list = schemas.UserListCreate(title="Todos")
+    crud.create_user_list(db, user_list=usr_list, user_id=user.id)
+    return user  # creation
 
 
 # GET | read the user by id
@@ -61,6 +66,7 @@ def read_user(db: Session = Depends(get_db), user_id: int = Header(None)):
 # POST | user list creator route
 @app.post('/lists', response_model=schemas.UserList, status_code=200)
 def create_list_for_user(user_list: schemas.UserListCreate, db: Session = Depends(get_db), user_id: int = Header(None)):
+    print('header: ', user_id)
     return crud.create_user_list(db, user_list, user_id)
 
 
@@ -81,10 +87,14 @@ def create_item_for_list(
     return crud.create_user_item(db, items, owner_id)
 
 
-@app.post("/login", status_code=status.HTTP_200_OK)
-async def login_user(login: schemas.Login):
-    print('acessou o root')
+@app.post("/login", response_model=schemas.User, status_code=status.HTTP_200_OK)
+def login_user(login: schemas.Login, db: Session = Depends(get_db)):
     token_validated = auth.auth_token(login.token)
+    # token_validated = {'auth': False}
     if not token_validated['auth']:  # token not valid
-        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="401 Unauthorized")
-    return {'root': 'hello world'}
+        raise HTTPException(status_code=401, detail="401 Unauthorized")
+    if not token_validated['email'] == login.email:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="401 Unauthorized")
+    else:
+        id_user = crud.get_user_by_email(db, login.email).id
+        return crud.get_user(db, id_user)
