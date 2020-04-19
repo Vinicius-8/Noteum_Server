@@ -2,6 +2,11 @@ from typing import List
 from pydantic import BaseModel
 
 
+class Login(BaseModel):
+    email: str
+    token: str
+
+
 class ItemBase(BaseModel):  # Item
     title: str
     description: str

@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException, Header
+from fastapi import Depends, FastAPI, HTTPException, Header, status
 
 from sqlalchemy.orm import Session
 
@@ -22,18 +22,7 @@ backend
 database
 """
 
-
-class User(BaseModel):
-    email: str
-    id: int
-    name: str
-    photo_url: str
-    token: str
-
-
 models.Base.metadata.create_all(bind=engine)
-
-
 app = FastAPI()
 
 # criando uma dependencia para o banco de dados que será usado em apenas um request e depois será
@@ -51,12 +40,13 @@ def get_db():
 
 @app.post('/users', response_model=schemas.User, status_code=201)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    token_validated = auth.auth_user(user.token)
+    token_validated = auth.auth_token(user.token)
     if not token_validated['auth']:  # token not valid
         return HTTPException(status_code=401, detail="401 Unauthorized")
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:  # email already created
-        raise HTTPException(status_code=400, detail='Email already registered')
+        print('o usuario foi autorizado -----')
+        raise HTTPException(status_code=status.HTTP_202_ACCEPTED, detail='ACCEPTED')
     return crud.create_user(db=db, user=user)  # creation
 
 
@@ -91,7 +81,10 @@ def create_item_for_list(
     return crud.create_user_item(db, items, owner_id)
 
 
-@app.get("/", status_code=200)
-async def read_root():
+@app.post("/login", status_code=status.HTTP_200_OK)
+async def login_user(login: schemas.Login):
     print('acessou o root')
+    token_validated = auth.auth_token(login.token)
+    if not token_validated['auth']:  # token not valid
+        return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="401 Unauthorized")
     return {'root': 'hello world'}
