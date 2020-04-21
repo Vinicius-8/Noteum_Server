@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 class Login(BaseModel):
     email: str
-    token: str
 
 
 class ItemBase(BaseModel):  # Item
@@ -49,7 +48,7 @@ class UserBase(BaseModel):  # User
 
 
 class UserCreate(UserBase):
-    token: str
+    pass
 
 
 class User(UserBase):

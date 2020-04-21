@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from database import schemas, models
 
 
-def get_user(db: Session, user_id: int):  # USER
+def get_user(db: Session, user_id: int) -> models.User:  # USER
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
@@ -10,11 +10,11 @@ def get_user_by_email(db: Session, email: str) -> models.User:  # USER
     return db.query(models.User).filter(models.User.email == email).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100):  # USER
+def get_users(db: Session, skip: int = 0, limit: int = 100) -> list:  # USER
     return db.query(models.User).offset(skip).limit(limit).all()
 
 
-def create_user(db: Session, user: schemas.UserCreate):  # USER
+def create_user(db: Session, user: schemas.UserCreate)-> models.User:  # USER
     db_user = models.User(email=user.email, name=user.name, photo_url=user.photo_url)
     db.add(db_user)
     db.commit()
@@ -22,11 +22,11 @@ def create_user(db: Session, user: schemas.UserCreate):  # USER
     return db_user
 
 
-def get_items(db: Session, skip: int = 0, limit: int = 100):  # ITEMS
+def get_items(db: Session, skip: int = 0, limit: int = 100) -> list:  # ITEMS
     return db.query(models.Item).offset(skip).limit(limit).all()
 
 
-def create_user_item(db: Session, item: schemas.ItemCreate, list_id):  # ITEM
+def create_user_item(db: Session, item: schemas.ItemCreate, list_id) -> models.Item:  # ITEM
     db_item = models.Item(**item.dict(), owner_list_id=list_id)
     db.add(db_item)
     db.commit()
@@ -34,7 +34,7 @@ def create_user_item(db: Session, item: schemas.ItemCreate, list_id):  # ITEM
     return db_item
 
 
-def create_user_list(db: Session, user_list: schemas.UserListCreate, user_id):  # LIST
+def create_user_list(db: Session, user_list: schemas.UserListCreate, user_id) -> models.UserList:  # LIST
     db_list = models.UserList(title=user_list.title, owner_id=user_id)
     db.add(db_list)
     db.commit()
@@ -42,9 +42,9 @@ def create_user_list(db: Session, user_list: schemas.UserListCreate, user_id):  
     return db_list
 
 
-def get_lists_from_user(db: Session, user_id: int, skip: int = 0, limit: int = 30):  # LIST
+def get_lists_from_user(db: Session, user_id: int, skip: int = 0, limit: int = 30) -> list:  # LIST
     return db.query(models.UserList).filter(models.UserList.owner_id == user_id).offset(skip).limit(limit).all()
 
 
-def get_list_by_id(db: Session, list_id: int):
+def get_list_by_id(db: Session, list_id: int) -> models.UserList:
     return db.query(models.UserList).filter(models.UserList.id == list_id).first()
