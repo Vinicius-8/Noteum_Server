@@ -61,6 +61,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), token: 
 @app.get('/users', response_model=schemas.User, status_code=200, )
 def read_user(db: Session = Depends(get_db), user_id: int = Header(None), token: str = Depends(oauth2_scheme)):
     token_validated = auth.auth_token(token)
+    # token_validated = {'auth': False}
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     db_user = crud.get_user(db, user_id=user_id)
@@ -121,7 +122,7 @@ def create_item_for_list(
 @app.post("/login", response_model=schemas.User, status_code=status.HTTP_200_OK)
 def login_user(login: schemas.Login, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     token_validated = auth.auth_token(token)
-    # token_validated = {'auth': False}
+    # token_validated = {'auth': True}
     if not token_validated['auth']:  # token not valid
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     if not token_validated['email'] == login.email:
@@ -133,11 +134,17 @@ def login_user(login: schemas.Login, db: Session = Depends(get_db), token: str =
     return crud.get_user(db, user.id)
 
 
-@app.get('/api/{url}', status_code=status.HTTP_200_OK)
+@app.get('/api', status_code=status.HTTP_200_OK)
 def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     token_validated = auth.auth_token(token)
+    # token_validated = {'auth': True}
+    print(url)
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     if crud.get_user_by_email(db, token_validated['email']) is None:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
-    return og.OpenGraph(url=url)
+    try:
+        res = og.OpenGraph(url=url)
+    except ValueError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='BAD REQUEST')
+    return res

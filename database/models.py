@@ -26,6 +26,7 @@ class Item(Base):
     title = Column(String, index=True)
     description = Column(String, index=True)
     img_url = Column(String)
+    url = Column(String)
     owner_list_id = Column(Integer, ForeignKey('user_lists.id'))
     owner = relationship('UserList', backref='items')
 

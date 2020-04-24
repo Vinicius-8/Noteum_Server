@@ -10,6 +10,7 @@ class ItemBase(BaseModel):  # Item
     title: str
     description: str
     img_url: str
+    url: str
 
 
 class ItemCreate(ItemBase):
