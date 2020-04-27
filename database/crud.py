@@ -1,3 +1,4 @@
+from sqlalchemy import desc, and_
 from sqlalchemy.orm import Session
 from database import schemas, models
 
@@ -48,3 +49,22 @@ def get_lists_from_user(db: Session, user_id: int, skip: int = 0, limit: int = 3
 
 def get_list_by_id(db: Session, list_id: int) -> models.UserList:
     return db.query(models.UserList).filter(models.UserList.id == list_id).first()
+
+
+def get_items_by_id(db: Session, list_id: int, skip: int = 0, limit: int = 30) -> models.UserList:
+    lis = db.query(models.UserList).filter(models.UserList.id == list_id).first()
+    lis.items = db.query(models.Item)\
+        .order_by(desc(models.Item.id))\
+        .filter(and_(models.Item.owner_list_id == list_id,)).offset(skip).limit(limit).all()
+    return lis
+
+
+def get_item_by_id(db: Session, item_id: int) -> models.Item:
+    return db.query(models.Item).filter(models.Item.id == item_id).first()
+
+
+def move_item(db: Session, item_id: int, list_id: int) -> models.Item:
+    item = db.query(models.Item).filter(models.Item.id == item_id).first()
+    item.owner_list_id = list_id
+    db.commit()
+    return item

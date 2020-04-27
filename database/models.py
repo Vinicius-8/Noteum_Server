@@ -28,5 +28,5 @@ class Item(Base):
     img_url = Column(String)
     url = Column(String)
     owner_list_id = Column(Integer, ForeignKey('user_lists.id'))
-    owner = relationship('UserList', backref='items')
+    # owner = relationship('UserList', backref='items')
 
