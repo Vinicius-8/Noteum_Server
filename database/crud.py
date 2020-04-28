@@ -63,6 +63,12 @@ def get_item_by_id(db: Session, item_id: int) -> models.Item:
     return db.query(models.Item).filter(models.Item.id == item_id).first()
 
 
+def delete_item_by_id(db: Session, item_id: int) -> bool:
+    db.query(models.Item).filter(models.Item.id == item_id).delete()
+    db.commit()
+    return True
+
+
 def move_item(db: Session, item_id: int, list_id: int) -> models.Item:
     item = db.query(models.Item).filter(models.Item.id == item_id).first()
     item.owner_list_id = list_id
