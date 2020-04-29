@@ -9,6 +9,7 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     photo_url = Column(String)
+    exhibition_mode = Column(String, default='small')
     lists = relationship('UserList', back_populates='owner')
 
 

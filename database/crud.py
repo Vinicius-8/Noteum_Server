@@ -74,3 +74,10 @@ def move_item(db: Session, item_id: int, list_id: int) -> models.Item:
     item.owner_list_id = list_id
     db.commit()
     return item
+
+
+def change_exhibition_mode(db: Session, user_id: int, exhibition_mode: str) -> models.User:
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    user.exhibition_mode = exhibition_mode
+    db.commit()
+    return user

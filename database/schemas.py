@@ -55,6 +55,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     lists: List[UserList] = []
+    exhibition_mode: str
 
     class Config:
         orm_mode = True

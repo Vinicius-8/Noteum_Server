@@ -164,25 +164,16 @@ def delete_item(
         item_id: int = Header(None),
         token: str = Depends(oauth2_scheme)
         ):
-    n = 0
-    n += 1
-    print('->{}'.format(str(n)))
     token_validated = auth.auth_token(token)
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
-    n += 1
-    print('->{}'.format(str(n)))
     user = crud.get_user(db, owner_id)
     if not user.email == token_validated['email']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
-    n += 1
-    print('->{}'.format(str(n)))
     item = crud.get_item_by_id(db, item_id)
     lista = crud.get_list_by_id(db, item.owner_list_id)
     if not owner_id == lista.owner_id:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
-    n += 1
-    print('->{}'.format(str(n)))
     if crud.delete_item_by_id(db, item_id):
         return {'list_id': item.owner_list_id}
 
@@ -217,3 +208,20 @@ def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oau
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='BAD REQUEST')
     return res
 
+
+@app.put('/exhibition', status_code=status.HTTP_200_OK)
+def change_exhibition_mode(
+        db: Session = Depends(get_db),
+        owner_id: int = Header(None),
+        exhibition_mode: str = Header(None),
+        token: str = Depends(oauth2_scheme)):
+
+    token_validated = auth.auth_token(token)
+    if not token_validated['auth']:
+        raise HTTPException(status_code=401, detail="401 Unauthorized")
+
+    user = crud.get_user(db, owner_id)
+    if not user.email == token_validated['email']:
+        raise HTTPException(status_code=401, detail="401 Unauthorized")
+
+    return crud.change_exhibition_mode(db, owner_id, exhibition_mode)
