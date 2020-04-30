@@ -46,7 +46,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), token: 
     if not token_validated['auth']:  # token not valid
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     if not token_validated['email'] == user.email:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
         # user already created gonna be returned
@@ -68,7 +68,7 @@ def read_user(db: Session = Depends(get_db), user_id: int = Header(None), token:
     if db_user is None:
         raise HTTPException(status_code=404, detail='404 User not found')
     if not token_validated['email'] == db_user.email:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     return db_user
 
 # POST | user list creator route
@@ -83,7 +83,7 @@ def create_list_for_user(
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     user = crud.get_user(db, user_id)
     if not user.email == token_validated['email']:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     return crud.create_user_list(db, user_list, user_id)
 
 
@@ -99,7 +99,7 @@ def read_lists_from_user(
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     user = crud.get_user(db, user_id)
     if not user.email == token_validated['email']:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     # lists = crud.get_lists_from_user(db, user_id, skip, limit)
     return user.lists
 
@@ -115,7 +115,7 @@ def create_item_for_list(
 
     res = crud.get_list_by_id(db, owner_list_id)
     if owner_id != res.owner_id:
-        raise HTTPException(status_code=401, detail='401 Unauthorized')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     return crud.create_user_item(db, items, owner_list_id)
 
 
@@ -130,7 +130,7 @@ def get_items_from_a_list(
 
     res = crud.get_list_by_id(db, owner_list_id)
     if owner_id != res.owner_id:
-        raise HTTPException(status_code=401, detail='401 Unauthorized')
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     return crud.get_items_by_id(db, owner_list_id)
 
 
@@ -149,7 +149,7 @@ def update_item(
 
     user = crud.get_user(db, owner_id)
     if not user.email == token_validated['email']:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
 
     item = crud.get_item_by_id(db, item_id)
     if item.owner_list_id == list_id:
@@ -169,11 +169,11 @@ def delete_item(
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     user = crud.get_user(db, owner_id)
     if not user.email == token_validated['email']:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     item = crud.get_item_by_id(db, item_id)
     lista = crud.get_list_by_id(db, item.owner_list_id)
     if not owner_id == lista.owner_id:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     if crud.delete_item_by_id(db, item_id):
         return {'list_id': item.owner_list_id}
 
@@ -185,7 +185,7 @@ def login_user(login: schemas.Login, db: Session = Depends(get_db), token: str =
     if not token_validated['auth']:  # token not valid
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     if not token_validated['email'] == login.email:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
 
     user = crud.get_user_by_email(db, login.email)
     if not user:
@@ -193,7 +193,7 @@ def login_user(login: schemas.Login, db: Session = Depends(get_db), token: str =
     return crud.get_user(db, user.id)
 
 
-@app.get('/api', status_code=status.HTTP_200_OK)
+@app.get('/api', status_code=status.HTTP_200_OK )
 def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     token_validated = auth.auth_token(token)
     # token_validated = {'auth': True}
@@ -201,7 +201,7 @@ def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oau
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     if crud.get_user_by_email(db, token_validated['email']) is None:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     try:
         res = og.OpenGraph(url=url)
     except ValueError:
@@ -222,6 +222,6 @@ def change_exhibition_mode(
 
     user = crud.get_user(db, owner_id)
     if not user.email == token_validated['email']:
-        raise HTTPException(status_code=401, detail="401 Unauthorized")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
 
     return crud.change_exhibition_mode(db, owner_id, exhibition_mode)
