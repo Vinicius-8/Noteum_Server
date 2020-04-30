@@ -103,6 +103,29 @@ def read_lists_from_user(
     # lists = crud.get_lists_from_user(db, user_id, skip, limit)
     return user.lists
 
+
+@app.delete('/lists', response_model=schemas.User, status_code=status.HTTP_200_OK)
+def delete_list(
+        db: Session = Depends(get_db),
+        owner_id: int = Header(None),
+        list_id: int = Header(None),
+        token: str = Depends(oauth2_scheme)
+        ):
+    token_validated = auth.auth_token(token)
+    if not token_validated['auth']:
+        raise HTTPException(status_code=401, detail="401 Unauthorized")
+    user = crud.get_user(db, owner_id)
+    if not user.email == token_validated['email']:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
+    if list_id == 1:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
+    lista = crud.get_list_by_id(db, list_id)
+    if not owner_id == lista.owner_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
+    if crud.delete_list_by_id(db, list_id):
+        return crud.get_user(db, owner_id)
+
+
 # create_list_for_user(user_list: schemas.UserListCreate, db: Session = Depends(get_db), user_id: int = Header(None)):
 @app.post('/items', response_model=schemas.Item, status_code=200)
 def create_item_for_list(

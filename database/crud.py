@@ -51,6 +51,13 @@ def get_list_by_id(db: Session, list_id: int) -> models.UserList:
     return db.query(models.UserList).filter(models.UserList.id == list_id).first()
 
 
+def delete_list_by_id(db: Session, list_id: int) -> bool:
+    db.query(models.Item).filter(models.Item.owner_list_id == list_id).delete()
+    db.query(models.UserList).filter(models.UserList.id == list_id).delete()
+    db.commit()
+    return True
+
+
 def get_items_by_id(db: Session, list_id: int, skip: int = 0, limit: int = 30) -> models.UserList:
     lis = db.query(models.UserList).filter(models.UserList.id == list_id).first()
     lis.items = db.query(models.Item)\
