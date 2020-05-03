@@ -4,9 +4,23 @@
 
 A REST API Server to be cosumed by Noteum
 
+## Installation
+Clone the repo and install the dependencies in requirements.txt
+
+```
+$ git clone https://github.com/Vinicius-8/Noteum_Server.git
+$ pip install -r requirements.txt
+```
+
 ## Requirements  
-* Create a file called credentials.py at src folder and put your OAUTH 2.0 client ID to use the google API for authentication, as follows:  
+Create a file called __credentials.py__ at src folder and put your OAUTH 2.0 client ID to use the google API for authentication, as follows:  
 ```py
 ANDROID_CLIENT_ID = "<yourid>"
 IOS_CLIENT_ID = "<yourid>"
+```
+
+## Run
+
+```bash
+$ uvicorn main:app --reload --host 0.0.0.0
 ```
