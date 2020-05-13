@@ -52,7 +52,7 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), token: 
         # user already created gonna be returned
         return db_user
     user = crud.create_user(db=db, user=user)
-    usr_list = schemas.UserListCreate(title="Todos")
+    usr_list = schemas.UserListCreate(title="All")
     crud.create_user_list(db, user_list=usr_list, user_id=user.id)
     return user  # creation
 
