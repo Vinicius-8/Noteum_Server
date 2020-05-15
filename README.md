@@ -16,7 +16,6 @@ $ pip install -r requirements.txt
 Create a file called __credentials.py__ at src folder and put your OAUTH 2.0 client ID to use the google API for authentication, as follows:  
 ```py
 ANDROID_CLIENT_ID = "<yourid>"
-IOS_CLIENT_ID = "<yourid>"
 ```
 
 ## Run
