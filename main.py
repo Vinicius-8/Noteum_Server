@@ -26,6 +26,8 @@ database
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+
+
 # criando uma dependencia para o banco de dados que será usado em apenas um request e depois será
 # fechado. Ou seja uma sessão indepedente para o banco por request, que será usada durante
 # tod.o o request e depois fechada com a finalização desse request
@@ -71,6 +73,7 @@ def read_user(db: Session = Depends(get_db), user_id: int = Header(None), token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
     return db_user
 
+
 # POST | user list creator route
 @app.post('/lists', response_model=schemas.UserList, status_code=200)
 def create_list_for_user(
@@ -110,7 +113,7 @@ def delete_list(
         owner_id: int = Header(None),
         list_id: int = Header(None),
         token: str = Depends(oauth2_scheme)
-        ):
+):
     token_validated = auth.auth_token(token)
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
@@ -164,8 +167,7 @@ def update_item(
         item_id: int = Header(None),
         list_id: int = Header(None),
         token: str = Depends(oauth2_scheme)
-        ):
-
+):
     token_validated = auth.auth_token(token)
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
@@ -186,7 +188,7 @@ def delete_item(
         owner_id: int = Header(None),
         item_id: int = Header(None),
         token: str = Depends(oauth2_scheme)
-        ):
+):
     token_validated = auth.auth_token(token)
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
@@ -232,7 +234,7 @@ def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oau
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='BAD REQUEST')
     except AttributeError:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='NOT_ACCEPTABLE')
-    if not 'image' and 'title' and 'description' in res:
+    if 'image' not in res or 'description' not in res:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='NOT_ACCEPTABLE')
     return res
 
@@ -243,7 +245,6 @@ def change_exhibition_mode(
         owner_id: int = Header(None),
         exhibition_mode: str = Header(None),
         token: str = Depends(oauth2_scheme)):
-
     token_validated = auth.auth_token(token)
     if not token_validated['auth']:
         raise HTTPException(status_code=401, detail="401 Unauthorized")
