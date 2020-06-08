@@ -234,7 +234,7 @@ def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oau
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='BAD REQUEST')
     except AttributeError:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='NOT_ACCEPTABLE')
-    if 'image' not in res or 'description' not in res:
+    if 'image' not in res or 'title' not in res:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='NOT_ACCEPTABLE')
     return res
 
