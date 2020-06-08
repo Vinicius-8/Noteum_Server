@@ -1,6 +1,7 @@
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from os import environ
+from os import environ  # environ.get('ANDROID_CLIENT_ID')
+# import credentials # credentials.ANDROID_CLIENT_ID
 
 
 def auth_token(token) -> dict:

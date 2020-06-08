@@ -216,7 +216,7 @@ def login_user(login: schemas.Login, db: Session = Depends(get_db), token: str =
     return crud.get_user(db, user.id)
 
 
-@app.get('/api', status_code=status.HTTP_200_OK )
+@app.get('/api', status_code=status.HTTP_200_OK)  # /api?url='link'
 def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
     token_validated = auth.auth_token(token)
     # token_validated = {'auth': True}
@@ -225,10 +225,15 @@ def open_graph(url: str, db: Session = Depends(get_db), token: str = Depends(oau
         raise HTTPException(status_code=401, detail="401 Unauthorized")
     if crud.get_user_by_email(db, token_validated['email']) is None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
+
     try:
         res = og.OpenGraph(url=url)
     except ValueError:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='BAD REQUEST')
+    except AttributeError:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='NOT_ACCEPTABLE')
+    if not 'image' and 'title' and 'description' in res:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='NOT_ACCEPTABLE')
     return res
 
 
