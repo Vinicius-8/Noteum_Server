@@ -56,6 +56,8 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db), token: 
     user = crud.create_user(db=db, user=user)
     usr_list = schemas.UserListCreate(title="All")
     crud.create_user_list(db, user_list=usr_list, user_id=user.id)
+    usr_list = schemas.UserListCreate(title="List 1")
+    crud.create_user_list(db, user_list=usr_list, user_id=user.id)
     return user  # creation
 
 
@@ -157,7 +159,10 @@ def get_items_from_a_list(
     res = crud.get_list_by_id(db, owner_list_id)
     if owner_id != res.owner_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403 FORBIDDEN")
-    return crud.get_items_by_id(db, owner_list_id)
+    if owner_list_id == 1:
+        return crud.get_all_items_from_user(db, owner_id)
+    else:
+        return crud.get_items_by_id(db, owner_list_id)
 
 
 @app.put('/items', response_model=schemas.Item, status_code=status.HTTP_200_OK)

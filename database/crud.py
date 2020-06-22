@@ -1,6 +1,7 @@
 from sqlalchemy import desc, and_
 from sqlalchemy.orm import Session
 from database import schemas, models
+import random
 
 
 def get_user(db: Session, user_id: int) -> models.User:  # USER
@@ -56,6 +57,18 @@ def delete_list_by_id(db: Session, list_id: int) -> bool:
     db.query(models.UserList).filter(models.UserList.id == list_id).delete()
     db.commit()
     return True
+
+
+def get_all_items_from_user(db: Session, owner_id: int):
+    lists = get_lists_from_user(db, owner_id)
+    all_items = []
+    for itm in lists:
+        _list = get_items_by_id(db, itm.id)
+        all_items.extend(_list.items)
+    usr_lst = schemas.UserList(id=1, title='All', owner_id=owner_id)
+    random.shuffle(all_items)
+    usr_lst.items = all_items
+    return usr_lst
 
 
 def get_items_by_id(db: Session, list_id: int, skip: int = 0, limit: int = 30) -> models.UserList:
