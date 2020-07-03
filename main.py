@@ -13,16 +13,6 @@ import controllers.authentication_controller as auth
 
 from pydantic import BaseModel
 
-"""
-Aqui fica a responsabilidade de definir rota e validar as requisições, as demais conecões com o banco e crud fica em 
-outro local, (controller e conexao com o banco separado pf)
-
-fastAPI
-Restfull
-backend
-database
-"""
-
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")

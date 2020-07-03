@@ -9,7 +9,6 @@ def auth_token(token) -> dict:
         if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
             print('O login não foi autenticado pelo servidor')
             raise ValueError('Wrong issuer')
-        # print('idinfo: {}'.format(idinfo))
         return {'auth': idinfo['email_verified'], 'userid': idinfo['sub'], 'email': idinfo['email']}
     except ValueError:
         print('Token Inválido')
